@@ -16,6 +16,8 @@ from pathlib import Path
 
 CACHE_DIR = Path(__file__).parent / "cache"
 IS_WINDOWS = platform.system() == "Windows"
+NOTIFICATION_TIMEOUT_SEC = 2
+PLAYBACK_TIMEOUT_SEC = 3
 
 # Messages — correspond to cache files in hooks/cache/
 MESSAGES = {
@@ -53,6 +55,8 @@ NOTIFICATION_TITLES = {
 
 
 def send_desktop_notification(title: str, message: str) -> bool:
+    if os.environ.get("DESKTOP_NOTIFICATIONS", "1").lower() in ("0", "false", "no", "off"):
+        return False
     system = platform.system()
     try:
         if system == "Linux":
@@ -81,7 +85,7 @@ def _notify_linux(title: str, message: str) -> bool:
             ],
             check=True,
             capture_output=True,
-            timeout=5,
+            timeout=NOTIFICATION_TIMEOUT_SEC,
         )
         return True
     except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
@@ -215,9 +219,14 @@ def play_cached(text: str) -> bool:
     for cmd in players:
         if shutil.which(cmd[0]):
             try:
-                subprocess.run(cmd + [str(cache_path)], check=True, capture_output=True)
+                subprocess.run(
+                    cmd + [str(cache_path)],
+                    check=True,
+                    capture_output=True,
+                    timeout=PLAYBACK_TIMEOUT_SEC,
+                )
                 return True
-            except subprocess.CalledProcessError:
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
                 continue
     return False
 

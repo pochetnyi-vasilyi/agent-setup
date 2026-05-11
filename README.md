@@ -8,7 +8,7 @@ Universal setup for [Claude Code](https://docs.anthropic.com/en/docs/claude-code
 - **TTS Notifications** — cached voice alerts when Claude finishes or needs input
 - **Desktop Notifications** — native OS notifications (Linux, macOS, Windows)
 - **Status Line** — project, branch, model, context usage, rate limits
-- **Slash Commands** — `/research`, `/ultrathink`, `/commit`, `/push-and-pr`, `/prime`, `/publish`, `/release`
+- **Skills + Slash Commands** — `commit` («сделай коммит и пуш» — auto-chain), `push-and-pr`, plus `/research`, `/ultrathink`, `/prime`, `/publish`, `/release`
 - **Cross-platform** — Linux, macOS, Windows
 
 ---
@@ -24,7 +24,7 @@ Prerequisites: Node.js 18+, uv (python package manager), ffmpeg or mpv (audio fo
 
 1. git clone https://github.com/DefaultPerson/agent-setup.git && cd agent-setup
 2. cp -r .claude/hooks ~/.claude/hooks
-3. cp -r .claude/commands ~/.claude/commands
+3. cp -r .claude/commands ~/.claude/commands && cp -r .claude/skills ~/.claude/skills
 4. cp .claude/settings.example.json ~/.claude/settings.json
    # Windows: cp .claude/settings.local.json.windows "$env:USERPROFILE/.claude/settings.json"
 5. cp CLAUDE.md ~/.claude/CLAUDE.md (optional — author's coding style and rules)
@@ -86,14 +86,15 @@ Prerequisites: Node.js 18+, uv (python package manager), ffmpeg or mpv (audio fo
 6. Edit ~/.codex/config.toml — set API keys, model preferences
 7. Add MCP servers (see below)
 8. Add shell aliases (see below)
-9. Verify everything works
-10. Delete agent-setup (repo no longer needed after setup)
+9. Open `/hooks` in Codex and trust the PreToolUse + Stop hooks
+10. Verify everything works
+11. Delete agent-setup (repo no longer needed after setup)
 ```
 
 **Key differences from Claude Code:**
 - Config: `config.toml` (TOML) instead of `settings.json`
 - Instructions: `AGENTS.md` instead of `CLAUDE.md`
-- Status line: built-in `/statusline` picker — no custom script needed
+- Status line: built-in `/statusline` picker, theme-aware colors via `tui.status_line_use_colors`, and `tui.status_line` items — no Claude-style custom script hook yet
 - Plugins: installed via interactive UI, not CLI command
 - MCP: configured in `config.toml` `[mcp_servers]` section or via `codex mcp add`
 
@@ -116,6 +117,9 @@ alias cx="codex" cxr="codex resume" cxd="codex --yolo" cxdr="codex resume --yolo
 ## Tips
 
 > [!TIP]
+> **Disable desktop notifications** — set `DESKTOP_NOTIFICATIONS=0` in `~/.claude/settings.json` (`env` section) or `~/.codex/config.toml` (`[shell_environment_policy].set`). Audio TTS keeps working.
+
+> [!TIP]
 > **Terminal as Editor Tab (VS Code)**: `Cmd/Ctrl+Shift+P` → "Terminal: Create New Terminal in Editor Area" — opens terminal as a tab next to your code, not in the bottom panel.
 
 > [!TIP]
@@ -123,6 +127,13 @@ alias cx="codex" cxr="codex resume" cxd="codex --yolo" cxdr="codex resume --yolo
 
 > [!TIP]
 > **Create SKILLs for repetitive tasks.** Instead of doing any task manually, create a SKILL for it. First version gives junior-mid level results. Then iterate until it matches your quality — 100-1000x time savings.
+
+## References
+
+Inspiration for the rules and self-reflection patterns in `CLAUDE.md` / `AGENTS.md`:
+
+- [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) — Behavioural principles for coding agents: Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution.
+- [DenisSergeevitch/chatgpt-custom-instructions](https://github.com/DenisSergeevitch/chatgpt-custom-instructions) — Rubric-driven self-evaluation methodology (model self-scores against a 5–7 category rubric and rewrites until threshold is met).
 
 ## License
 

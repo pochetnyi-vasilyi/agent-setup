@@ -1,6 +1,10 @@
 ---
-allowed-tools: Bash(git *), Bash(gh *)
-description: Push current branch and create a pull request.
+name: push-and-pr
+description: >
+  Push current branch and create a pull request. Rebase workflow, auto-PR,
+  merge prompt after checks pass.
+  Triggers: "push-and-pr", "/push-and-pr", "push and pr", "create pr", "сделай пр", "запушь"
+allowed-tools: [Bash]
 ---
 
 ## Context

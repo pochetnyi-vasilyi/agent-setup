@@ -60,6 +60,8 @@ NOTIFICATION_TITLES = {
 
 
 def send_desktop_notification(title: str, message: str) -> bool:
+    if os.environ.get("DESKTOP_NOTIFICATIONS", "1").lower() in ("0", "false", "no", "off"):
+        return False
     system = platform.system()
     try:
         if system == "Linux":

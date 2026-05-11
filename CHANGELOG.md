@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **config.toml.sample** — documented Codex `tui.status_line` built-in items and `/hooks` trust workflow.
+- **config.toml.sample** — enabled Codex theme-aware status line colors and added PR/branch/context progress items.
+- **notification.py** — re-introduced `DESKTOP_NOTIFICATIONS` env toggle (default `1`); set to `0|false|no|off` to suppress notify-send/osascript/Toast while keeping audio.
+- **settings.example.json / config.toml.sample** — `DESKTOP_NOTIFICATIONS=1` documented in env/shell_environment_policy.
+- **.claude/skills/{commit,push-and-pr}/SKILL.md** — natural-language triggers (ru+en) for Claude Code; `commit` auto-chains to `push-and-pr` when user mentions push.
+- **README.md** — Tip on disabling desktop notifications.
+- **AGENTS.md** — added `NEVER add Co-Authored-By` rules for parity with CLAUDE.md.
+
+### Changed
+
+- **notification.py** — added short desktop notification and audio playback timeouts so Stop hooks cannot hang on `notify-send`/`ffplay`.
+- **README.md** — Codex setup now includes `/hooks` review/trust step; status line note clarifies current Codex built-in-only customization.
+- **README.md** — Slash Commands bullet renamed to "Skills + Slash Commands"; install step copies `.claude/skills` alongside commands.
+- **.codex/skills/commit/SKILL.md** — added chain-to-push step; same triggers as Claude Code skill.
+- **CLAUDE.md / AGENTS.md** — point cleanups: dropped outdated Opus 4.5/Sonnet 4 line, removed three duplicated bullets (`Structured answers; minimal output`, `Parallelize independent work`, `No sycophantic openers`).
+
+### Removed
+
+- **.claude/commands/commit.md, push-and-pr.md** — replaced by skills with same names; `/commit` and `/push-and-pr` still work via skill slash invocation.
+
 ## 2026-04-06
 
 ### Changed

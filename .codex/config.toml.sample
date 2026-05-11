@@ -16,12 +16,35 @@ plugins = false
 tool_suggest = false
 
 [tui]
-status_line = ["current-dir", "git-branch", "model-with-reasoning", "context-remaining"]
+# Configure interactively with /statusline.
+# Colors follow the active /theme. Custom .tmTheme files can be placed in
+# $CODEX_HOME/themes/ and selected with /theme.
+status_line_use_colors = true
+# Useful built-in items include:
+# project, project-name, current-dir, run-state, thread, thread-title,
+# git-branch, context-remaining, context-used, five-hour-limit, weekly-limit,
+# codex-version, used-tokens, total-input-tokens, total-output-tokens,
+# session-id, fast-mode, model-with-reasoning, task-progress,
+# pull-request-number, branch-changes, context-window-size, raw-output.
+status_line = [
+  "current-dir",
+  "git-branch",
+  "pull-request-number",
+  "branch-changes",
+  "model-with-reasoning",
+  "context-remaining",
+  "task-progress",
+]
 
 [shell_environment_policy]
 inherit = "core"
+set = { DESKTOP_NOTIFICATIONS = "1" }
 
 # MCP Servers
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
 headers = { CONTEXT7_API_KEY = "$CONTEXT7_API_KEY" }
+
+# Hook trust state is intentionally not templated here because Codex keys it by
+# the absolute local hooks.json path. After copying hooks.json, open /hooks and
+# trust the PreToolUse and Stop hooks once.
