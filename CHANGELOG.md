@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **statusline.py** — `effort` segment (e.g. `high`/`xhigh`); reads `effort.level` from status line JSON (Claude Code ≥ v2.1.119). Relevant since Opus 4.8 defaults to `high` and exposes `/effort xhigh`.
 - **config.toml.sample** — documented Codex `tui.status_line` built-in items and `/hooks` trust workflow.
 - **config.toml.sample** — enabled Codex theme-aware status line colors and added PR/branch/context progress items.
 - **notification.py** — re-introduced `DESKTOP_NOTIFICATIONS` env toggle (default `1`); set to `0|false|no|off` to suppress notify-send/osascript/Toast while keeping audio.
@@ -16,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **.claude/skills/{commit,push-and-pr}/SKILL.md** — added `disallowed-tools: [Edit, Write, MultiEdit, NotebookEdit]` (Claude Code ≥ v2.1.152) so git skills can never mutate files; `allowed-tools: [Bash]` stays for auto-approved git/gh commands (the two fields are complementary — auto-approve vs remove-from-pool).
 - **notification.py** — added short desktop notification and audio playback timeouts so Stop hooks cannot hang on `notify-send`/`ffplay`.
 - **README.md** — Codex setup now includes `/hooks` review/trust step; status line note clarifies current Codex built-in-only customization.
 - **README.md** — Slash Commands bullet renamed to "Skills + Slash Commands"; install step copies `.claude/skills` alongside commands.
@@ -24,6 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
+- **.claude/commands/research.md** — superseded by Claude Code's native bundled `/deep-research` skill (multi-agent harness with adversarial fact-checking; ≥ v2.1.158). Codex keeps `.codex/skills/research/` — Codex has no native deep-research equivalent.
 - **.claude/commands/commit.md, push-and-pr.md** — replaced by skills with same names; `/commit` and `/push-and-pr` still work via skill slash invocation.
 
 ## 2026-04-06

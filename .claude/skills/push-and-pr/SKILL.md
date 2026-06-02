@@ -5,6 +5,7 @@ description: >
   merge prompt after checks pass.
   Triggers: "push-and-pr", "/push-and-pr", "push and pr", "create pr", "сделай пр", "запушь"
 allowed-tools: [Bash]
+disallowed-tools: [Edit, Write, MultiEdit, NotebookEdit]
 ---
 
 ## Context

@@ -84,8 +84,13 @@ def main():
     if branch:
         parts.append(f"\033[35m{branch}{R}")
 
-    model = model.split(" (")[0]  # "Opus 4.6 (1M context)" → "Opus 4.6"
+    model = model.split(" (")[0]  # "Opus 4.8 (1M context)" → "Opus 4.8"
     parts.append(f"{CL}{model}{R}")
+
+    # Effort level (JSON field since v2.1.119); Opus 4.8 default=high, xhigh available
+    effort = data.get("effort", {}).get("level")
+    if effort:
+        parts.append(f"{D}{effort}{R}")
 
     # Rate limits — compact [5h/7d%]
     rl5 = five_hour.get("used_percentage")

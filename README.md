@@ -8,7 +8,7 @@ Universal setup for [Claude Code](https://docs.anthropic.com/en/docs/claude-code
 - **TTS Notifications** — cached voice alerts when Claude finishes or needs input
 - **Desktop Notifications** — native OS notifications (Linux, macOS, Windows)
 - **Status Line** — project, branch, model, context usage, rate limits
-- **Skills + Slash Commands** — `commit` («сделай коммит и пуш» — auto-chain), `push-and-pr`, plus `/research`, `/ultrathink`, `/prime`, `/publish`, `/release`
+- **Skills + Slash Commands** — `commit` («сделай коммит и пуш» — auto-chain), `push-and-pr`, `/ultrathink`, `/prime`, `/publish`, `/release` (+ `/research` on Codex; on Claude Code use the native `/deep-research` skill)
 - **Cross-platform** — Linux, macOS, Windows
 
 ---

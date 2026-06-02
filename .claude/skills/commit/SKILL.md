@@ -5,6 +5,7 @@ description: >
   validates format, stages and commits. Chains to push-and-pr when user mentions push.
   Triggers: "commit", "/commit", "закоммить", "сделай коммит", "коммит и пуш", "commit and push"
 allowed-tools: [Bash]
+disallowed-tools: [Edit, Write, MultiEdit, NotebookEdit]
 ---
 
 ## Context
