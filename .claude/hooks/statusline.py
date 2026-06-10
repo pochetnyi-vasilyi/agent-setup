@@ -6,6 +6,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Traffic-light colors — Claude-branded (warm earth)
+GREEN = "\033[38;2;127;176;105m"   # leaf  #7fb069
+YELLOW = "\033[38;2;224;164;88m"   # amber #e0a458
+RED = "\033[38;2;192;57;43m"       # brick #c0392b
+
 
 def get_branch(project_dir: str) -> str:
     try:
@@ -18,25 +23,25 @@ def get_branch(project_dir: str) -> str:
         return ""
 
 
-def format_bar(pct: float, width: int = 10) -> str:
-    """Build colored progress bar: [####--------------]"""
+def format_bar(pct: float, width: int = 7) -> str:
+    """Build colored block progress bar: ████████░░░░░░"""
     filled = round(pct / 100 * width)
     filled = max(0, min(filled, width))
 
     # Color by usage level (with ~15% overhead for system prompt/tools)
     total_pct = pct + 15
     if total_pct < 50:
-        color = "\033[32m"  # green
+        color = GREEN
     elif total_pct < 80:
-        color = "\033[33m"  # yellow
+        color = YELLOW
     else:
-        color = "\033[31m"  # red
+        color = RED
 
     D = "\033[2m"   # dim
     R = "\033[0m"   # reset
-    bar_filled = "#" * filled
-    bar_empty = "-" * (width - filled)
-    return f"{color}[{bar_filled}{D}{bar_empty}{R}{color}]{R}", color
+    bar_filled = "█" * filled
+    bar_empty = "░" * (width - filled)
+    return f"{color}{bar_filled}{D}{bar_empty}{R}", color
 
 
 def main():
@@ -60,7 +65,6 @@ def main():
     # Context info — prefer new API fields, fallback to context_window
     ctx_window = data.get("context_window", {})
     pct = ctx_window.get("used_percentage")
-    remaining_pct = ctx_window.get("remaining_percentage")
 
     # Rate limits (Claude.ai Pro/Max only)
     rate_limits = data.get("rate_limits", {})
@@ -70,19 +74,22 @@ def main():
     # Project folder name
     folder = Path(project_dir).name if project_dir else ""
 
-    # ANSI colors
+    # ANSI colors — Claude-branded palette (warm earth)
     D = "\033[2m"   # dim
     R = "\033[0m"   # reset
     SEP = f" {D}>>{R} "
-    CL = "\033[38;2;217;119;87m"  # claude orange
+    FOLDER = "\033[38;2;235;219;188m"  # manilla cream
+    BRANCH = "\033[38;2;212;162;127m"  # kraft tan
+    CL = "\033[38;2;217;119;87m"       # claude coral (model)
+    EFFORT = "\033[38;2;156;142;126m"  # warm taupe
 
     parts = []
 
     if folder:
-        parts.append(f"{D}{folder}{R}")
+        parts.append(f"{FOLDER}{folder}{R}")
 
     if branch:
-        parts.append(f"\033[35m{branch}{R}")
+        parts.append(f"{BRANCH}{branch}{R}")
 
     model = model.split(" (")[0]  # "Opus 4.8 (1M context)" → "Opus 4.8"
     parts.append(f"{CL}{model}{R}")
@@ -90,7 +97,7 @@ def main():
     # Effort level (JSON field since v2.1.119); Opus 4.8 default=high, xhigh available
     effort = data.get("effort", {}).get("level")
     if effort:
-        parts.append(f"{D}{effort}{R}")
+        parts.append(f"{EFFORT}{effort}{R}")
 
     # Rate limits — compact [5h/7d%]
     rl5 = five_hour.get("used_percentage")
@@ -98,22 +105,18 @@ def main():
     if rl5 is not None:
         worst = max(rl5, rl7 or 0)
         if worst < 50:
-            rl_color = "\033[32m"
+            rl_color = GREEN
         elif worst < 80:
-            rl_color = "\033[33m"
+            rl_color = YELLOW
         else:
-            rl_color = "\033[31m"
+            rl_color = RED
         rl_text = f"{rl5:.0f}%/{rl7:.0f}%" if rl7 is not None else f"{rl5:.0f}%"
         parts.append(f"{rl_color}{rl_text}{R}")
 
-    # Context bar
+    # Context bar — block style with used percentage (e.g. ████████░░░░░░ 56.7%)
     if pct is not None:
         bar, color = format_bar(pct)
-        if remaining_pct is not None:
-            remaining_k = int(remaining_pct * ctx_window.get("context_window_size", 200_000) / 100 / 1000)
-            parts.append(f"{bar} {color}{remaining_k}k{R}")
-        else:
-            parts.append(f"{bar} {color}{pct:.0f}%{R}")
+        parts.append(f"{bar} {color}{pct:.1f}%{R}")
 
     print(SEP.join(parts))
 
