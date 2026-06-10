@@ -2,6 +2,7 @@
 """Claude Code status line: dir >> branch >> model >> context% >> rate limits"""
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -10,6 +11,13 @@ from pathlib import Path
 GREEN = "\033[38;2;110;176;90m"    # leaf  #6eb05a
 YELLOW = "\033[38;2;224;164;88m"   # amber #e0a458
 RED = "\033[38;2;192;57;43m"       # brick #c0392b
+
+ANSI_RE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def visible_len(s: str) -> int:
+    """Length of string ignoring ANSI color codes (for width-aware layout)."""
+    return len(ANSI_RE.sub("", s))
 
 
 def get_branch(project_dir: str) -> str:
@@ -77,7 +85,7 @@ def main():
     # ANSI colors — Claude-branded palette (warm earth)
     D = "\033[2m"   # dim
     R = "\033[0m"   # reset
-    SEP = f" {D}>>{R} "
+    SEP = f" {D}›{R} "
     FOLDER = "\033[38;2;235;219;188m"  # manilla cream
     BRANCH = "\033[38;2;212;162;127m"  # kraft tan
     CL = "\033[38;2;217;119;87m"       # claude coral (model)
@@ -122,7 +130,14 @@ def main():
         bar, color = format_bar(pct)
         line2.append(f"{bar} {color}{pct:.0f}%{R}")
 
-    print("\n".join(SEP.join(line) for line in (line1, line2) if line))
+    # Accent marker (coral) on each line + adaptive: one line if it fits $COLUMNS, else two
+    MARK = f"{CL}▌{R} "
+    one_line = MARK + SEP.join(line1 + line2)
+    cols = int(os.environ.get("COLUMNS") or 0)
+    if cols and visible_len(one_line) > cols and line1:
+        print(MARK + SEP.join(line1) + "\n" + MARK + SEP.join(line2))
+    else:
+        print(one_line)
 
 if __name__ == "__main__":
     main()
