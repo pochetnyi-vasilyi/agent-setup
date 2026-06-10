@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 # Traffic-light colors — Claude-branded (warm earth)
-GREEN = "\033[38;2;127;176;105m"   # leaf  #7fb069
+GREEN = "\033[38;2;110;176;90m"    # leaf  #6eb05a
 YELLOW = "\033[38;2;224;164;88m"   # amber #e0a458
 RED = "\033[38;2;192;57;43m"       # brick #c0392b
 
@@ -24,7 +24,7 @@ def get_branch(project_dir: str) -> str:
 
 
 def format_bar(pct: float, width: int = 7) -> str:
-    """Build colored block progress bar: ████████░░░░░░"""
+    """Build colored progress bar: [####---]"""
     filled = round(pct / 100 * width)
     filled = max(0, min(filled, width))
 
@@ -39,9 +39,9 @@ def format_bar(pct: float, width: int = 7) -> str:
 
     D = "\033[2m"   # dim
     R = "\033[0m"   # reset
-    bar_filled = "█" * filled
-    bar_empty = "░" * (width - filled)
-    return f"{color}{bar_filled}{D}{bar_empty}{R}", color
+    bar_filled = "#" * filled
+    bar_empty = "-" * (width - filled)
+    return f"{color}[{bar_filled}{D}{bar_empty}{R}{color}]{R}", color
 
 
 def main():
@@ -113,10 +113,10 @@ def main():
         rl_text = f"{rl5:.0f}%/{rl7:.0f}%" if rl7 is not None else f"{rl5:.0f}%"
         parts.append(f"{rl_color}{rl_text}{R}")
 
-    # Context bar — block style with used percentage (e.g. ████████░░░░░░ 56.7%)
+    # Context bar — bar + used percentage, whole number (e.g. [####---] 57%)
     if pct is not None:
         bar, color = format_bar(pct)
-        parts.append(f"{bar} {color}{pct:.1f}%{R}")
+        parts.append(f"{bar} {color}{pct:.0f}%{R}")
 
     print(SEP.join(parts))
 
