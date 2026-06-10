@@ -83,12 +83,25 @@ def main():
     CL = "\033[38;2;217;119;87m"       # claude coral (model)
     EFFORT = "\033[38;2;156;142;126m"  # warm taupe
 
-    parts = []
+    # Line 1: dir > branch
+    line1 = []
 
-    # Context bar — bar + used percentage, whole number (e.g. [####---] 57%)
-    if pct is not None:
-        bar, color = format_bar(pct)
-        parts.append(f"{bar} {color}{pct:.0f}%{R}")
+    if folder:
+        line1.append(f"{FOLDER}{folder}{R}")
+
+    if branch:
+        line1.append(f"{BRANCH}{branch}{R}")
+
+    # Line 2: model > effort > rate limits > context
+    line2 = []
+
+    model = model.split(" (")[0]  # "Opus 4.8 (1M context)" → "Opus 4.8"
+    line2.append(f"{CL}{model}{R}")
+
+    # Effort level (JSON field since v2.1.119); Opus 4.8 default=high, xhigh available
+    effort = data.get("effort", {}).get("level")
+    if effort:
+        line2.append(f"{EFFORT}{effort}{R}")
 
     # Rate limits — compact [5h/7d%]
     rl5 = five_hour.get("used_percentage")
@@ -102,23 +115,14 @@ def main():
         else:
             rl_color = RED
         rl_text = f"{rl5:.0f}%/{rl7:.0f}%" if rl7 is not None else f"{rl5:.0f}%"
-        parts.append(f"{rl_color}{rl_text}{R}")
+        line2.append(f"{rl_color}{rl_text}{R}")
 
-    if folder:
-        parts.append(f"{FOLDER}{folder}{R}")
+    # Context bar — bar + used percentage, whole number (e.g. [####---] 57%)
+    if pct is not None:
+        bar, color = format_bar(pct)
+        line2.append(f"{bar} {color}{pct:.0f}%{R}")
 
-    if branch:
-        parts.append(f"{BRANCH}{branch}{R}")
-
-    # Effort level (JSON field since v2.1.119); Opus 4.8 default=high, xhigh available
-    effort = data.get("effort", {}).get("level")
-    if effort:
-        parts.append(f"{EFFORT}{effort}{R}")
-
-    model = model.split(" (")[0]  # "Opus 4.8 (1M context)" → "Opus 4.8"
-    parts.append(f"{CL}{model}{R}")
-
-    print(SEP.join(parts))
+    print("\n".join(SEP.join(line) for line in (line1, line2) if line))
 
 if __name__ == "__main__":
     main()
