@@ -85,19 +85,10 @@ def main():
 
     parts = []
 
-    if folder:
-        parts.append(f"{FOLDER}{folder}{R}")
-
-    if branch:
-        parts.append(f"{BRANCH}{branch}{R}")
-
-    model = model.split(" (")[0]  # "Opus 4.8 (1M context)" → "Opus 4.8"
-    parts.append(f"{CL}{model}{R}")
-
-    # Effort level (JSON field since v2.1.119); Opus 4.8 default=high, xhigh available
-    effort = data.get("effort", {}).get("level")
-    if effort:
-        parts.append(f"{EFFORT}{effort}{R}")
+    # Context bar — bar + used percentage, whole number (e.g. [####---] 57%)
+    if pct is not None:
+        bar, color = format_bar(pct)
+        parts.append(f"{bar} {color}{pct:.0f}%{R}")
 
     # Rate limits — compact [5h/7d%]
     rl5 = five_hour.get("used_percentage")
@@ -113,10 +104,19 @@ def main():
         rl_text = f"{rl5:.0f}%/{rl7:.0f}%" if rl7 is not None else f"{rl5:.0f}%"
         parts.append(f"{rl_color}{rl_text}{R}")
 
-    # Context bar — bar + used percentage, whole number (e.g. [####---] 57%)
-    if pct is not None:
-        bar, color = format_bar(pct)
-        parts.append(f"{bar} {color}{pct:.0f}%{R}")
+    if folder:
+        parts.append(f"{FOLDER}{folder}{R}")
+
+    if branch:
+        parts.append(f"{BRANCH}{branch}{R}")
+
+    # Effort level (JSON field since v2.1.119); Opus 4.8 default=high, xhigh available
+    effort = data.get("effort", {}).get("level")
+    if effort:
+        parts.append(f"{EFFORT}{effort}{R}")
+
+    model = model.split(" (")[0]  # "Opus 4.8 (1M context)" → "Opus 4.8"
+    parts.append(f"{CL}{model}{R}")
 
     print(SEP.join(parts))
 
