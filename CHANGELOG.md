@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **guard.py** — `test_guard.py` regression corpus (82 cases) built from real false positives harvested from session transcripts; run with `uv run --no-project .claude/hooks/test_guard.py`.
+- **guard.py** — `ask` verdict tier via PreToolUse `permissionDecision` JSON: risky-but-legitimate commands (`git reset --hard`, `git push -f`, `git clean -f`, `curl | sh`, `rm -rf` of a top-level `$HOME` dir, `docker system prune -a`) now prompt for approval instead of hard-blocking (mapped to deny under Codex where no prompt exists).
+- **guard.py** — `Read` tool protection wired in `settings.example.json` (private keys denied; `.ssh/config`, `known_hosts`, `*.pub` allowed) and `ask` on Edit/Write into `~/.ssh/`, deployed hook/settings files, `/etc/`.
 - **statusline.py** — `effort` segment (e.g. `high`/`xhigh`); reads `effort.level` from status line JSON (Claude Code ≥ v2.1.119). Relevant since Opus 4.8 defaults to `high` and exposes `/effort xhigh`.
 - **config.toml.sample** — documented Codex `tui.status_line` built-in items and `/hooks` trust workflow.
 - **config.toml.sample** — enabled Codex theme-aware status line colors and added PR/branch/context progress items.
@@ -17,6 +20,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- **guard.py** — detection core rewritten from raw-substring regex to structure-aware shell analysis (heredoc stripping, quote-aware segment splitting, shlex tokenization, wrapper skipping for `sudo`/`env`/`timeout`/`xargs`, `bash -c`/`eval` recursion). Replay of 227 historical blocks: 219 were false positives (string literals, commit messages, grep patterns, `curl | python3 -c` JSON parsing, `/home` paths in unrelated parts of compound commands) — now 219 allow / 7 ask / 1 deny.
+- **guard.py** — logging switched from rewrite-the-whole-JSON-array (`pre_tool_use.json`) to append-only `pre_tool_use.jsonl` with 5 MB rotation; input truncated to 500 chars.
 - **.claude/skills/{commit,push-and-pr}/SKILL.md** — added `disallowed-tools: [Edit, Write, MultiEdit, NotebookEdit]` (Claude Code ≥ v2.1.152) so git skills can never mutate files; `allowed-tools: [Bash]` stays for auto-approved git/gh commands (the two fields are complementary — auto-approve vs remove-from-pool).
 - **notification.py** — added short desktop notification and audio playback timeouts so Stop hooks cannot hang on `notify-send`/`ffplay`.
 - **README.md** — Codex setup now includes `/hooks` review/trust step; status line note clarifies current Codex built-in-only customization.
