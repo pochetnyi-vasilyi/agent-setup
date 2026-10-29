@@ -1388,6 +1388,15 @@ DENY_SUFFIX = (" Use the alternative named here or report the block; don't reach
 
 
 def main():
+    # Claude Code writes UTF-8 to stdin and reads stderr as UTF-8, but on Windows
+    # Python's stdio defaults to the ANSI code page (e.g. cp1251): Cyrillic input
+    # became mojibake or crashed the log write (fail-open), and reasons showed
+    # garbage instead of an em-dash. errors='replace' as a last-resort safety net.
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding='utf-8', errors='replace')
+        except Exception:
+            pass
     try:
         input_data = json.load(sys.stdin)
     except json.JSONDecodeError as e:

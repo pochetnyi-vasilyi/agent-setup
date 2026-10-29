@@ -359,7 +359,22 @@ def run():
             failures.append(f'  [deny suffix missing] exit={proc.returncode} '
                             f'stderr={proc.stderr.strip()!r}')
 
-    total = len(BASH_CASES) + len(TOOL_CASES) + len(UNIT_CASES) + len(WINDOWS_CASES) + 4
+    # stdio is UTF-8 whatever the locale: on cp1251 Windows the И in this command
+    # (UTF-8 0xD0 0x98) crashed main() so the hook failed open, and the em-dash in
+    # the deny reason reached Claude Code as a cp1251 byte
+    with tempfile.TemporaryDirectory() as td:
+        env = dict(os.environ, CLAUDE_CONFIG_DIR=td)
+        cmd = {'tool_name': 'Bash', 'tool_input': {'command': 'rm -r .  # Иван'}}
+        proc = subprocess.run(
+            [sys.executable, str(Path(__file__).with_name('guard.py'))],
+            input=json.dumps(cmd, ensure_ascii=False).encode('utf-8'),
+            capture_output=True, env=env, timeout=15,
+        )
+        err = proc.stderr.decode('utf-8', 'replace').strip()
+        if proc.returncode != 2 or '—' not in err:
+            failures.append(f'  [UTF-8 stdio] exit={proc.returncode} stderr={err!r}')
+
+    total = len(BASH_CASES) + len(TOOL_CASES) + len(UNIT_CASES) + len(WINDOWS_CASES) + 5
     if failures:
         print(f'FAIL: {len(failures)}/{total} cases')
         print('\n'.join(failures))
